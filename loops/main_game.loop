@@ -1,0 +1,42 @@
+$enemies enemy.ose as e;
+$characters hero.ose as h;
+#imp keys;
+
+func hero_move(h hero){
+    if (key[A]){
+        hero.x -= speed;
+    }
+    if (key[D]){
+        hero.x += speed;
+    }
+    if (key[S]){
+        hero.y += speed;
+    }
+    if (key[W]){
+        hero.y -= speed;
+    }
+}
+func enemy_ai(e enemy, h hero){
+    int x_r = enemy.x - hero.x;
+    int y_r = enemy.y - hero.y;
+    if (x_r < 0){
+        enemy.x += enemy.speed/2;
+    }
+    else{
+        enemy.x -= enemy.speed/2;
+    }
+    if (y_r < 0){
+        enemy.y += enemy.speed/2;
+    }
+    else{
+        enemy.y -= enemy.speed/2;
+    }
+
+}
+
+
+start_loop{
+    drawSprite(IMAGE lez, h.Ragnar);
+    hero_move(h.Ragnar);
+    enemy_ai(e.slime, h.Ragnar);
+}

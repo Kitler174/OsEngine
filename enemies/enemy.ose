@@ -1,0 +1,9 @@
+ENEMY slime{
+    int speed = 5,
+    int damage = 20
+};
+
+ENEMY blue_slime{
+    int speed = 8,
+    int damage = 15
+};

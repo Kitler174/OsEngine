@@ -1,0 +1,15 @@
+CHARACTER Ragnar{
+    int healt = 100,
+    int speed = 20,
+    str name = "Ragnar",
+    int x = 20,
+    int y = 20,   
+};
+
+CHARACTER lez{
+    int healt = 200,
+    int speed = 10,
+    str name = "Lez",
+    int x = 20,
+    int y = 20,     
+};
