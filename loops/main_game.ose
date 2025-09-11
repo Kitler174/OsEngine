@@ -1,5 +1,5 @@
-$enemies enemy.ose as e;
-$characters hero.ose as h;
+$enemies enemy.struct as e;
+$characters hero.struct as h;
 #imp keys;
 
 func hero_move(h hero){
