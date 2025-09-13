@@ -1,6 +1,7 @@
 $enemies enemy.struct as e;
 $characters hero.struct as h;
 #imp keys;
+$imp draw;
 
 func hero_move(h hero){
     if (key[A]){
@@ -36,7 +37,7 @@ func enemy_ai(e enemy, h hero){
 
 
 start_loop{
-    drawSprite(IMAGE lez, h.Ragnar);
+    drawSprite(h.Ragnar);
     hero_move(h.Ragnar);
     enemy_ai(e.slime, h.Ragnar);
 }
