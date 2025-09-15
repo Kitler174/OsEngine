@@ -1,11 +1,13 @@
 #include <fstream>
 #include <stdexcept>
 #include <cstdint>
+#include <vector>
 #include "../h/structs.h"
+using namespace std;
 
-Image load_image_bin(const char* bin_path, int x, int y, uint32_t *fb) {
+Image load_image_bin(const char* bin_path) {
     Image img;
-    ifstream in(bin_path, td::ios::binary);
+    ifstream in(bin_path, std::ios::binary);
 
     // szerokość i wysokość
     in.read(reinterpret_cast<char*>(&img.width), sizeof(int));

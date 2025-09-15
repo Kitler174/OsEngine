@@ -1,7 +1,6 @@
 #pragma once
-#include <stdint.h>
+#include <cstdint>
 #include "../h/8x8.h"
-#include "../h/framebuffer.h"
 #include "../h/structs.h"
 
 void draw_char8x8(uint32_t* fb, int fb_width, int fb_height, int x, int y, uint8_t c, uint32_t color) {
@@ -29,6 +28,18 @@ void draw_string8x8(uint32_t* fb, int fb_width, int fb_height, int x, int y, con
     }
 }
 
-void draw_image(Image img, int x, int y){
+void draw_image(uint32_t* fb, int fb_width, int fb_height, int x, int y, const Image& img) {
+    for (int row = 0; row < img.height; ++row) {
+        for (int col = 0; col < img.width; ++col) {
+            int px = x + col;
+            int py = y + row;
 
+            if (px < 0 || py < 0 || px >= fb_width || py >= fb_height) {
+                continue;
+            }
+
+            uint32_t color = img.pixels[row * img.width + col];
+            fb[py * fb_width + px] = color; // uproszczona wersja bez alpha
+        }
+    }
 }
