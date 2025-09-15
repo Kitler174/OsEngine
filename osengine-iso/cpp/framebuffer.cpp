@@ -1,9 +1,9 @@
 #include <cstdint>
 #include "../h/8x8.h"
 #include "../h/structs.h"
-//##################################################################
-// Draw single character using 8x8 font at (x, y) position on framebuffer
-//##################################################################
+// ##################################################################
+//  Draw single character using 8x8 font at (x, y) position on framebuffer
+// ##################################################################
 void draw_char8x8(uint32_t *fb, int fb_width, int fb_height, int x, int y, uint8_t c, uint32_t color)
 {
     if ((unsigned char)c > 127)
@@ -26,9 +26,9 @@ void draw_char8x8(uint32_t *fb, int fb_width, int fb_height, int x, int y, uint8
     }
 }
 
-//##################################################################
-// Draw string using 8x8 font at (x, y) position on framebuffer
-//##################################################################
+// ##################################################################
+//  Draw string using 8x8 font at (x, y) position on framebuffer
+// ##################################################################
 void draw_string8x8(uint32_t *fb, int fb_width, int fb_height, int x, int y, const char *str, uint32_t color)
 {
     int cx = x;
@@ -40,9 +40,9 @@ void draw_string8x8(uint32_t *fb, int fb_width, int fb_height, int x, int y, con
     }
 }
 
-//##################################################################
-// Draw image (ARGB8888) at (x, y) position on framebuffer
-//##################################################################
+// ##################################################################
+//  Draw image (ARGB8888) at (x, y) position on framebuffer
+// ##################################################################
 void draw_image(uint32_t *fb, int fb_width, int fb_height, int x, int y, const Image &img)
 {
     for (int row = 0; row < img.height; ++row)
