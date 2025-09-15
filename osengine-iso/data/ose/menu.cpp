@@ -1,7 +1,7 @@
-$enemies enemy.struct as e;
-$characters hero.struct as h;
-#imp keys;
-#imp draw;
+#include "data/struct/enemies/enemy.h"
+#include "data/struct/characters/hero.h"
+#include "../../h/keys.h"
+$imp draw;
 
 func hero_move(h hero){
     if (key[A]){
@@ -21,16 +21,16 @@ func enemy_ai(e enemy, h hero){
     int x_r = enemy.x - hero.x;
     int y_r = enemy.y - hero.y;
     if (x_r < 0){
-        enemy.x += enemy.speed;
+        enemy.x += enemy.speed/2;
     }
     else{
-        enemy.x -= enemy.speed;
+        enemy.x -= enemy.speed/2;
     }
     if (y_r < 0){
-        enemy.y += enemy.speed;
+        enemy.y += enemy.speed/2;
     }
     else{
-        enemy.y -= enemy.speed;
+        enemy.y -= enemy.speed/2;
     }
 }
 
@@ -39,10 +39,14 @@ func draw_text(str text, int x, int y){
 }
 
 int score = 0;
+use_map(map1_login.map);
+
 start_loop{
     drawSprite(h.Ragnar);
     hero_move(h.Ragnar);
     enemy_ai(e.slime, h.Ragnar);
     draw_text("Score"+str(score), 20, 20);
-
+    if (score == 10){
+        switch_map()
+    }
 }

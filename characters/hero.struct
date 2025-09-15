@@ -1,4 +1,5 @@
-$imp images
+$imp images;
+$imp animations;
 
 CHARACTER Ragnar{
     int health = 100,
@@ -6,7 +7,7 @@ CHARACTER Ragnar{
     str name = "Ragnar",
     int x = 20,
     int y = 20,   
-    image images["im1"]
+    images image["im1"]
 
 };
 
@@ -16,5 +17,5 @@ CHARACTER lez{
     str name = "Lez",
     int x = 20,
     int y = 20,     
-    image images["im1"]
+    animations animation["im1"]
 };

@@ -1,7 +1,7 @@
-$enemies enemy.struct as e;
-$characters hero.struct as h;
-#imp keys;
-#imp draw;
+#include "data/struct/enemies/enemy.h"
+#include "data/struct/characters/hero.h"
+#include "../../h/keys.h"
+#include "../../h/draw.h"
 
 func hero_move(h hero){
     if (key[A]){
