@@ -1,4 +1,6 @@
 #pragma once
 #include <stdint.h>
-struct Image;
-Image load_image_bin(const char* bin_path);
+#include "structs.h"
+#include <cstddef>
+
+Image load_image_from_memory(const uint8_t* data, size_t size);

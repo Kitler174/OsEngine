@@ -1,32 +1,37 @@
-#include <fstream>
-#include <stdexcept>
 #include <cstdint>
-#include <vector>
 #include "../h/structs.h"
-using namespace std;
+#include <cstddef>
 
-Image load_image_bin(const char* bin_path) {
+// ##################################################################
+//  Load image from memory buffer (simple custom format)
+// ##################################################################
+Image load_image_from_memory(const uint8_t *data, size_t size)
+{
     Image img;
-    ifstream in(bin_path, std::ios::binary);
 
-    // szerokość i wysokość
-    in.read(reinterpret_cast<char*>(&img.width), sizeof(int));
-    in.read(reinterpret_cast<char*>(&img.height), sizeof(int));
-
-    // wczytujemy surowe RGBA
-    vector<unsigned char> raw(img.width * img.height * 4);
-    in.read(reinterpret_cast<char*>(raw.data()), raw.size());
-
-    // konwersja RGBA → uint32_t (ARGB8888)
-    img.pixels.resize(img.width * img.height);
-    for (int i = 0; i < img.width * img.height; i++) {
-        uint8_t r = raw[i * 4 + 0];
-        uint8_t g = raw[i * 4 + 1];
-        uint8_t b = raw[i * 4 + 2];
-        uint8_t a = raw[i * 4 + 3];
-
-        img.pixels[i] = (a << 24) | (r << 16) | (g << 8) | (b);
+    if (size < sizeof(int) * 2)
+    { // Minimal size width + height
+        img.width = 0;
+        img.height = 0;
+        img.pixels = nullptr;
+        return img;
     }
+
+    // Loading width and height (first 8 bytes)
+    img.width = *(const int *)data;
+    img.height = *(const int *)(data + 4);
+
+    size_t expected_size = 8 + img.width * img.height * 4;
+    if (size < expected_size)
+    { // Not enough data
+        img.width = 0;
+        img.height = 0;
+        img.pixels = nullptr;
+        return img;
+    }
+
+    // Pointing to pixel data (ARGB8888)
+    img.pixels = (uint32_t *)(data + 8);
 
     return img;
 }
