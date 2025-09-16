@@ -139,7 +139,7 @@ void convertOSE()
                     std::string subfolder = m[3].matched ? m[3].str() : "";
                     std::string structName = m[4].str();
 
-                    std::string path = "data/struct/" + folder;
+                    std::string path = "../data/struct/" + folder;
                     if (!subfolder.empty())
                         path += "/" + subfolder;
                     path += "/" + structName + ".h";
@@ -158,27 +158,81 @@ void convertOSE()
         }
     }
 }
-
 // ============================
-// MAIN 
+// STRUCT -> h - > osengine-iso/data/struct
 // ============================
-int main()
+void ConvertSTRUCT()
 {
-    std::string images_input = "a_main_images";
-    std::string images_output = "osengine-iso/data/images";
+    std::string path = ".";
 
-    std::string music_input = "a_main_music";
-    std::string music_output = "osengine-iso/data/music";
+    for (auto it = fs::recursive_directory_iterator(path,
+        fs::directory_options::skip_permission_denied);
+        it != fs::recursive_directory_iterator(); ++it){
+            if (it->is_directory()){
+                std::string name = it->path().filename().string();
+                if (!name.empty() && name[0] == '.')
+                {
+                    it.disable_recursion_pending();
+                    continue;
+                }
+                if (name.rfind("osengine-iso", 0) == 0)
+                {
+                    it.disable_recursion_pending();
+                    continue;
+                }
+                for (const auto &entry : fs::directory_iterator(it->path()))
+                    if (entry.is_regular_file() && entry.path().extension() == ".struct")
+                    {
+                        std::string s = entry.path().string();
+                        std::string suffix = ".struct";
+                        if (s.size() >= suffix.size() && 
+                            s.compare(s.size() - suffix.size(), suffix.size(), suffix) == 0)
+                        {
+                            s.erase(s.size() - suffix.size());  
+                        }
 
-    std::cout << "Converting images..." << std::endl;
-    convertImages(images_input, images_output);
+                        std::ifstream in(entry.path());
+                        if (!in.is_open())
+                        {
+                            std::cerr << "Cant open file: " << s << std::endl;
+                            continue;
+                        }
 
-    std::cout << "Converting music..." << std::endl;
-    convertMusic(music_input, music_output);
+                        std::string outPath = "osengine-iso/data/struct/" + s.erase(0,2) + ".h";
+                        std::cout << "Converted struct: " << entry.path().string().erase(0,2) << " -> " << outPath << std::endl;
 
-    std::cout << "Converting ose..." << std::endl;
-    convertOSE();
-
-    std::cout << "All files converted!" << std::endl;
-    return 0;
+                    }
+        }
+    }
 }
+
+    // ============================
+    // MAIN
+    // ============================
+    int main()
+    {
+        std::string images_input = "a_main_images";
+        std::string images_output = "osengine-iso/data/images";
+
+        std::string music_input = "a_main_music";
+        std::string music_output = "osengine-iso/data/music";
+
+        std::cout << "Converting images..." << std::endl;
+        convertImages(images_input, images_output);
+        std::cout << "################################" << std::endl
+                  << std::endl;
+        std::cout << "Converting music..." << std::endl;
+        convertMusic(music_input, music_output);
+        std::cout << "################################" << std::endl
+                  << std::endl;
+        std::cout << "Converting ose..." << std::endl;
+        convertOSE();
+        std::cout << "################################" << std::endl
+                  << std::endl;
+        std::cout << "Converting struct..." << std::endl;
+        ConvertSTRUCT();
+        std::cout << "################################" << std::endl
+                  << std::endl;
+        std::cout << "All files converted!" << std::endl;
+        return 0;
+    }

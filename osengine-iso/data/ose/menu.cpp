@@ -1,7 +1,7 @@
-#include "data/struct/enemies/enemy.h"
-#include "data/struct/characters/hero.h"
+#include "../data/struct/enemies/enemy.h"
+#include "../data/struct/characters/h/hero.h"
 #include "../../h/keys.h"
-$imp draw;
+#include "../../h/draw.h"
 
 func hero_move(h hero){
     if (key[A]){

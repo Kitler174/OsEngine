@@ -1,7 +1,7 @@
 $enemies enemy.struct as e;
-$characters hero.struct as h;
+$characters|h hero.struct as h;
 #imp keys;
-$imp draw;
+#imp draw;
 
 func hero_move(h hero){
     if (key[A]){

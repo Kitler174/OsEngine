@@ -1,5 +1,5 @@
-#include "data/struct/enemies/enemy.h"
-#include "data/struct/characters/hero.h"
+#include "../data/struct/enemies/enemy.h"
+#include "../data/struct/characters/hero.h"
 #include "../../h/keys.h"
 #include "../../h/draw.h"
 

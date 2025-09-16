@@ -1,7 +1,7 @@
 $imp images;
 $imp animations;
 
-CHARACTER Ragnar{
+STRUCT Ragnar{
     int health = 100,
     int speed = 20,
     str name = "Ragnar",
@@ -11,7 +11,7 @@ CHARACTER Ragnar{
 
 };
 
-CHARACTER lez{
+STRUCT lez{
     int health = 200,
     int speed = 10,
     str name = "Lez",
