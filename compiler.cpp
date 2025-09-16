@@ -5,7 +5,6 @@
 #include <regex>
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-
 namespace fs = std::filesystem;
 
 // ============================
@@ -147,8 +146,6 @@ void convertOSE()
                     out << "#include \"" << path << "\"\n";
                     continue;
                 }
-
-                // Reszta kodu
                 out << line << "\n";
             }
 
@@ -166,73 +163,74 @@ void ConvertSTRUCT()
     std::string path = ".";
 
     for (auto it = fs::recursive_directory_iterator(path,
-        fs::directory_options::skip_permission_denied);
-        it != fs::recursive_directory_iterator(); ++it){
-            if (it->is_directory()){
-                std::string name = it->path().filename().string();
-                if (!name.empty() && name[0] == '.')
+                                                    fs::directory_options::skip_permission_denied);
+         it != fs::recursive_directory_iterator(); ++it)
+    {
+        if (it->is_directory())
+        {
+            std::string name = it->path().filename().string();
+            if (!name.empty() && name[0] == '.')
+            {
+                it.disable_recursion_pending();
+                continue;
+            }
+            if (name.rfind("osengine-iso", 0) == 0)
+            {
+                it.disable_recursion_pending();
+                continue;
+            }
+            for (const auto &entry : fs::directory_iterator(it->path()))
+                if (entry.is_regular_file() && entry.path().extension() == ".struct")
                 {
-                    it.disable_recursion_pending();
-                    continue;
-                }
-                if (name.rfind("osengine-iso", 0) == 0)
-                {
-                    it.disable_recursion_pending();
-                    continue;
-                }
-                for (const auto &entry : fs::directory_iterator(it->path()))
-                    if (entry.is_regular_file() && entry.path().extension() == ".struct")
+                    std::string s = entry.path().string();
+                    std::string suffix = ".struct";
+                    if (s.size() >= suffix.size() &&
+                        s.compare(s.size() - suffix.size(), suffix.size(), suffix) == 0)
                     {
-                        std::string s = entry.path().string();
-                        std::string suffix = ".struct";
-                        if (s.size() >= suffix.size() && 
-                            s.compare(s.size() - suffix.size(), suffix.size(), suffix) == 0)
-                        {
-                            s.erase(s.size() - suffix.size());  
-                        }
-
-                        std::ifstream in(entry.path());
-                        if (!in.is_open())
-                        {
-                            std::cerr << "Cant open file: " << s << std::endl;
-                            continue;
-                        }
-
-                        std::string outPath = "osengine-iso/data/struct/" + s.erase(0,2) + ".h";
-                        std::cout << "Converted struct: " << entry.path().string().erase(0,2) << " -> " << outPath << std::endl;
-
+                        s.erase(s.size() - suffix.size());
                     }
+
+                    std::ifstream in(entry.path());
+                    if (!in.is_open())
+                    {
+                        std::cerr << "Cant open file: " << s << std::endl;
+                        continue;
+                    }
+
+                    std::string outPath = "osengine-iso/data/struct/" + s.erase(0, 2) + ".h";
+                    std::cout << "Converted struct: " << entry.path().string().erase(0, 2) << " -> " << outPath << std::endl;
+                }
         }
     }
 }
 
-    // ============================
-    // MAIN
-    // ============================
-    int main()
-    {
-        std::string images_input = "a_main_images";
-        std::string images_output = "osengine-iso/data/images";
+// ============================
+// MAIN
+// ============================
+int main()
+{
+    std::string images_input = "a_main_images";
+    std::string images_output = "osengine-iso/data/images";
 
-        std::string music_input = "a_main_music";
-        std::string music_output = "osengine-iso/data/music";
+    std::string music_input = "a_main_music";
+    std::string music_output = "osengine-iso/data/music";
 
-        std::cout << "Converting images..." << std::endl;
-        convertImages(images_input, images_output);
-        std::cout << "################################" << std::endl
-                  << std::endl;
-        std::cout << "Converting music..." << std::endl;
-        convertMusic(music_input, music_output);
-        std::cout << "################################" << std::endl
-                  << std::endl;
-        std::cout << "Converting ose..." << std::endl;
-        convertOSE();
-        std::cout << "################################" << std::endl
-                  << std::endl;
-        std::cout << "Converting struct..." << std::endl;
-        ConvertSTRUCT();
-        std::cout << "################################" << std::endl
-                  << std::endl;
-        std::cout << "All files converted!" << std::endl;
-        return 0;
-    }
+    std::cout << "Converting images..." << std::endl;
+    convertImages(images_input, images_output);
+    std::cout << "################################" << std::endl
+              << std::endl;
+    std::cout << "Converting music..." << std::endl;
+    convertMusic(music_input, music_output);
+    std::cout << "################################" << std::endl
+              << std::endl;
+    std::cout << "Converting ose..." << std::endl;
+    convertOSE();
+    std::cout << "################################" << std::endl
+              << std::endl;
+    std::cout << "Converting struct..." << std::endl;
+    ConvertSTRUCT();
+    std::cout << "################################" << std::endl
+              << std::endl;
+    std::cout << "All files converted!" << std::endl;
+    return 0;
+}
