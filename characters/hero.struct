@@ -1,21 +1,17 @@
-$imp images;
-$imp animations;
+#imp image;
 
 STRUCT Ragnar{
     int health = 100,
     int speed = 20,
-    str name = "Ragnar",
     int x = 20,
     int y = 20,   
-    images image["im1"]
-
+    image image["im1"],
 };
 
-STRUCT lez{
-    int health = 200,
-    int speed = 10,
-    str name = "Lez",
+STRUCT Ragnar2{
+    int health = 100,
+    int speed = 20,
     int x = 20,
-    int y = 20,     
-    animations animation["im1"]
+    int y = 20,   
+    image image["im2"],
 };

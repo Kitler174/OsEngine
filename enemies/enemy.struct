@@ -1,9 +1,9 @@
 STRUCT slime{
     int speed = 5,
-    int damage = 20
+    int damage = 20,
 };
 
 STRUCT blue_slime{
     int speed = 8,
-    int damage = 15
+    int damage = 15,
 };

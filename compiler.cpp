@@ -3,9 +3,11 @@
 #include <filesystem>
 #include <string>
 #include <regex>
+#include <set>
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 namespace fs = std::filesystem;
+std::set<std::string> externsAdded;
 
 // ============================
 //  PNG -> BIN -> osengine-iso/data/images
@@ -118,9 +120,6 @@ void convertOSE()
             {
                 std::smatch m;
 
-                // ============================
-                // #imp -> #include
-                // ============================
                 std::regex reImp(R"(^#imp\s+(\w+);$)");
                 if (std::regex_match(line, m, reImp))
                 {
@@ -128,13 +127,10 @@ void convertOSE()
                     continue;
                 }
 
-                // ============================
-                // $characters / $enemies / other_structures
-                // ============================
                 std::regex reStruct(R"(^\$(\w+)(\|(\w+))?\s+(\w+)\.struct\s+as\s+(\w+);$)");
                 if (std::regex_match(line, m, reStruct))
                 {
-                    std::string folder = m[1].str(); // np. characters
+                    std::string folder = m[1].str();
                     std::string subfolder = m[3].matched ? m[3].str() : "";
                     std::string structName = m[4].str();
 
@@ -155,6 +151,7 @@ void convertOSE()
         }
     }
 }
+
 // ============================
 // STRUCT -> h - > osengine-iso/data/struct
 // ============================
@@ -162,8 +159,7 @@ void ConvertSTRUCT()
 {
     std::string path = ".";
 
-    for (auto it = fs::recursive_directory_iterator(path,
-                                                    fs::directory_options::skip_permission_denied);
+    for (auto it = fs::recursive_directory_iterator(path, fs::directory_options::skip_permission_denied);
          it != fs::recursive_directory_iterator(); ++it)
     {
         if (it->is_directory())
@@ -198,7 +194,103 @@ void ConvertSTRUCT()
                     }
 
                     std::string outPath = "osengine-iso/data/struct/" + s.erase(0, 2) + ".h";
-                    std::cout << "Converted struct: " << entry.path().string().erase(0, 2) << " -> " << outPath << std::endl;
+                    std::filesystem::create_directories(std::filesystem::path(outPath).parent_path());
+
+                    std::ofstream out(outPath);
+                    if (!out.is_open())
+                    {
+                        std::cerr << "Cant save file: " << outPath << std::endl;
+                        continue;
+                    }
+
+                    std::string line;
+                    bool inStruct = false;
+                    std::regex structRegex(R"(^STRUCT\s+(\w+)\s*\{)");
+                    std::smatch m;
+                    std::set<std::string> imagesInStruct;
+                    std::vector<std::string> structBuffer;
+
+                    while (std::getline(in, line))
+                    {
+                        line = std::regex_replace(line, std::regex("^\\s+|\\s+$"), "");
+
+                        std::regex reImp(R"(^#imp\s+(\w+);$)");
+                        if (std::regex_match(line, m, reImp))
+                        {
+                            out << "#include \"../../h/" << m[1].str() << ".h\"\n";
+                            continue;
+                        }
+
+                        std::regex reStruct(R"(^\$(\w+)(\|(\w+))?\s+(\w+)\.struct\s+as\s+(\w+);$)");
+                        if (std::regex_match(line, m, reStruct))
+                        {
+                            std::string folder = m[1].str();
+                            std::string subfolder = m[3].matched ? m[3].str() : "";
+                            std::string structName = m[4].str();
+
+                            std::string path = "../data/struct/" + folder;
+                            if (!subfolder.empty())
+                                path += "/" + subfolder;
+                            path += "/" + structName + ".h";
+
+                            out << "#include \"" << path << "\"\n";
+                            continue;
+                        }
+
+                        if (!inStruct && std::regex_match(line, m, structRegex))
+                        {
+                            structBuffer.push_back("struct " + m[1].str() + " {");
+                            inStruct = true;
+                            continue;
+                        }
+
+                        if (inStruct)
+                        {
+                            if (line == "};")
+                            {
+                                for (const auto &img : imagesInStruct)
+                                {
+                                    if (externsAdded.find(img) == externsAdded.end())
+                                    {
+                                        out << "extern unsigned char _binary_" << img << "_bin_start[];\n";
+                                        out << "extern unsigned char _binary_" << img << "_bin_end[];\n";
+                                        externsAdded.insert(img);
+                                    }
+                                }
+
+                                for (auto &structLine : structBuffer)
+                                {
+                                    structLine = std::regex_replace(structLine, std::regex(R"(\bstr\b)"), "std::string");
+                                    structLine = std::regex_replace(structLine, std::regex(R"(\bimage\b)"), "Image");
+                                    structLine = std::regex_replace(structLine, std::regex(R"(\banimations\b)"), "animations");
+                                    structLine = std::regex_replace(structLine, std::regex(","), ";");
+                                    std::regex replaceRegex(R"(\bImage\b\s+(\w+)\[\"(\w+)\"\])");
+                                    structLine = std::regex_replace(structLine, replaceRegex,
+                                        "Image $1 = load_image_from_memory(_binary_$2_bin_start, _binary_$2_bin_end - _binary_$2_bin_start)");
+                                    out << "    " << structLine << "\n";
+                                }
+                                out << "};\n";
+                                structBuffer.clear();
+                                imagesInStruct.clear();
+                                inStruct = false;
+                                continue;
+                            }
+
+                            structBuffer.push_back(line);
+
+                            std::smatch arrayMatch;
+                            std::regex arrayRegex(R"((\w+)\s+(\w+)\[\"(\w+)\"\])");
+                            if (std::regex_search(line, arrayMatch, arrayRegex))
+                            {
+                                imagesInStruct.insert(arrayMatch[3].str());
+                            }
+                        }
+                    }
+
+                    in.close();
+                    out.close();
+                    std::cout << "Converted struct: " << entry.path().string().erase(0, 2)
+                              << " -> " << outPath << std::endl;
                 }
         }
     }
