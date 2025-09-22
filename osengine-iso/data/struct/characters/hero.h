@@ -1,4 +1,4 @@
-#include "../../h/image.h"
+#include "../../../h/image.h"
 extern unsigned char _binary_im1_bin_start[];
 extern unsigned char _binary_im1_bin_end[];
     struct Ragnar {

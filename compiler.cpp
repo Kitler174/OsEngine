@@ -121,9 +121,17 @@ void convertOSE()
                 std::smatch m;
 
                 std::regex reImp(R"(^#imp\s+(\w+);$)");
+
                 if (std::regex_match(line, m, reImp))
                 {
                     out << "#include \"../../h/" << m[1].str() << ".h\"\n";
+                    continue;
+                }
+
+                std::regex reStart(R"(^start_loop\s+\w+;$)");
+                if (std::regex_match(line, m, reStart))
+                {
+                    out << "while(1){\n";
                     continue;
                 }
 
@@ -134,7 +142,7 @@ void convertOSE()
                     std::string subfolder = m[3].matched ? m[3].str() : "";
                     std::string structName = m[4].str();
 
-                    std::string path = "../data/struct/" + folder;
+                    std::string path = "../struct/" + folder;
                     if (!subfolder.empty())
                         path += "/" + subfolder;
                     path += "/" + structName + ".h";
@@ -217,7 +225,7 @@ void ConvertSTRUCT()
                         std::regex reImp(R"(^#imp\s+(\w+);$)");
                         if (std::regex_match(line, m, reImp))
                         {
-                            out << "#include \"../../h/" << m[1].str() << ".h\"\n";
+                            out << "#include \"../../../h/" << m[1].str() << ".h\"\n";
                             continue;
                         }
 
@@ -266,7 +274,7 @@ void ConvertSTRUCT()
                                     structLine = std::regex_replace(structLine, std::regex(","), ";");
                                     std::regex replaceRegex(R"(\bImage\b\s+(\w+)\[\"(\w+)\"\])");
                                     structLine = std::regex_replace(structLine, replaceRegex,
-                                        "Image $1 = load_image_from_memory(_binary_$2_bin_start, _binary_$2_bin_end - _binary_$2_bin_start)");
+                                                                    "Image $1 = load_image_from_memory(_binary_$2_bin_start, _binary_$2_bin_end - _binary_$2_bin_start)");
                                     out << "    " << structLine << "\n";
                                 }
                                 out << "};\n";
